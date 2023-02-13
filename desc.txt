@@ -1,0 +1,12 @@
+len(scaled_data) = 10
+step_days = 2 
+callback_days = 5
+
+0 1 2 3 4 5 6 7 8 9
+
+
+x_t = [[3,4,5,6,7], [2,3,4,5,6], [1,2,3,4,5], [0,1,2,3,4]]
+y_t = [     9     ,      8     ,      7     ,      6     ]
+
+
+i: 6 --> 9  ==  range(callback_days - 1 + step_days, len(scaled_data))
