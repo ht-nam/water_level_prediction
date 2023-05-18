@@ -19,8 +19,6 @@ def printResult(y_test, y_prd, delta_cols, stepDays):
             temp1 += 1
         if np.abs(y_test[i] - y_prd[i]) > 18:
             temp2 += 1
-        # if np.abs(y_test[i] - y_prd[i]) > 1:
-        #     temp3 += 1
 
     print(
         "{0} days over 14mm ({1:.2f})%".format(
@@ -32,11 +30,7 @@ def printResult(y_test, y_prd, delta_cols, stepDays):
             temp2, float(temp2) / y_test.shape[0] * 100
         )
     )
-    # print(
-    #     "{0} days over 1m ({1:.2f})%".format(
-    #         temp3, float(temp3) / y_test.shape[0] * 100
-    #     )
-    # )
+
     print("max error", MAX_ERROR(y_test, y_prd)[0])
     print("r2 score:", R2(y_test, y_prd))
     print("nse score:", NSE(y_test, y_prd))
@@ -77,6 +71,7 @@ def printResult(y_test, y_prd, delta_cols, stepDays):
     filename = stepDays
     output_excel_path = "result/rs/" + str(filename) + ".csv"
     output_Excel(input_detail, output_excel_path)
+    plotResult(y_test, y_prd)
 
 
 def printMultiRecord(y_test_lst, y_prd_lst, stepDays):

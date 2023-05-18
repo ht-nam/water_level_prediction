@@ -10,51 +10,6 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 y_scaler = MinMaxScaler()
 
 
-def configData(file, output_name, cols=[], delta_cols=[]):
-    data = pd.read_csv(file)
-    data = data[cols]
-    data = data.fillna(data.bfill())
-    data.columns = cols
-    if delta_cols == []:
-        pass
-    else:
-        delta_indexes = []
-        for x, y in enumerate(delta_cols):
-            delta_indexes.append(cols.index(y))
-        for x, y in enumerate(delta_indexes):
-            delta_col = [
-                data.values[i, y] - data.values[i - 1, y]
-                for i in range(1, data.shape[0])
-            ]
-            delta_col.insert(0, 0)
-            data["d_" + delta_cols[x]] = delta_col
-        data = data.drop(0)
-    data.to_csv(output_name)
-    return output_name
-
-
-def readData(file, cols):
-    data = pd.read_csv(file)
-    data = data[cols]
-    data = data.fillna(data.bfill())
-    data.columns = cols
-    return data
-
-
-def mergeRecord(data, cols, lbCol_index, step_days=1, callback_days=1):
-    data = data[cols].values
-    scaled_data = scaler.transform(data)
-
-    x_train, y_train = [], []
-    for x in range(callback_days - 1 + step_days, len(data)):
-        last_day = x - step_days
-        x_train.append(scaled_data[last_day + 1 - callback_days : last_day + 1, :])
-        y_train.append(scaled_data[x, lbCol_index])
-
-    x_train, y_train = np.array(x_train), np.array(y_train)
-    return x_train, y_train.reshape(-1, 1)
-
-
 def loadData(
     trainFile,
     testFile,
@@ -119,6 +74,51 @@ def loadData(
     x_train, y_train, x_test, y_test = shuffleData(x_train, y_train, x_test, y_test)
 
     return x_train, y_train, x_test, y_test
+
+
+def configData(file, output_name, cols=[], delta_cols=[]):
+    data = pd.read_csv(file)
+    data = data[cols]
+    data = data.fillna(data.bfill())
+    data.columns = cols
+    if delta_cols == []:
+        pass
+    else:
+        delta_indexes = []
+        for x, y in enumerate(delta_cols):
+            delta_indexes.append(cols.index(y))
+        for x, y in enumerate(delta_indexes):
+            delta_col = [
+                data.values[i, y] - data.values[i - 1, y]
+                for i in range(1, data.shape[0])
+            ]
+            delta_col.insert(0, 0)
+            data["d_" + delta_cols[x]] = delta_col
+        data = data.drop(0)
+    data.to_csv(output_name)
+    return output_name
+
+
+def readData(file, cols):
+    data = pd.read_csv(file)
+    data = data[cols]
+    data = data.fillna(data.bfill())
+    data.columns = cols
+    return data
+
+
+def mergeRecord(data, cols, lbCol_index, step_days=1, callback_days=1):
+    data = data[cols].values
+    scaled_data = scaler.transform(data)
+
+    x_train, y_train = [], []
+    for x in range(callback_days - 1 + step_days, len(data)):
+        last_day = x - step_days
+        x_train.append(scaled_data[last_day + 1 - callback_days : last_day + 1, :])
+        y_train.append(scaled_data[x, lbCol_index])
+
+    x_train, y_train = np.array(x_train), np.array(y_train)
+    return x_train, y_train.reshape(-1, 1)
 
 
 def smote(x_train, y_train, water_level=0):

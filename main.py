@@ -1,10 +1,10 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from getData import configData, loadData, smote, y_scaler
-from printData import printResult, plotResult, printMultiRecord
+from exportData import printResult, plotResult, printMultiRecord
 
 
-def fitModel(x_train, y_train, epochs=15, batch_size=30):
+def smLSTM(x_train, y_train, epochs=15, batch_size=30):
     model = Sequential()
     model.add(
         LSTM(
@@ -41,7 +41,7 @@ def main():
         "RF_DongHoi",
         "Tide_DongHoi",
     ]
-    is_delta_cols = True
+    is_delta_cols = False
     is_smote = True
     label_col = "WL_LeThuy"
     step_days = 6
@@ -63,11 +63,10 @@ def main():
         is_smote=is_smote,
     )
 
-    model = fitModel(
+    model = smLSTM(
         x_train=x_train, y_train=y_train, epochs=epochs, batch_size=batch_size
     )
 
-    #
     y_prd = model.predict(x_test)
     y_test_inverse = y_scaler.inverse_transform(y_test)
     y_prd_inverse = y_scaler.inverse_transform(y_prd)
