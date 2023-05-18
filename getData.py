@@ -1,11 +1,36 @@
 import numpy as np
 import pandas as pd
-
+import math
+from imblearn.over_sampling import SMOTE, ADASYN
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 y_scaler = MinMaxScaler()
+
+
+def configData(file, output_name, cols=[], delta_cols=[]):
+    data = pd.read_csv(file)
+    data = data[cols]
+    data = data.fillna(data.bfill())
+    data.columns = cols
+    if delta_cols == []:
+        pass
+    else:
+        delta_indexes = []
+        for x, y in enumerate(delta_cols):
+            delta_indexes.append(cols.index(y))
+        for x, y in enumerate(delta_indexes):
+            delta_col = [
+                data.values[i, y] - data.values[i - 1, y]
+                for i in range(1, data.shape[0])
+            ]
+            delta_col.insert(0, 0)
+            data["d_" + delta_cols[x]] = delta_col
+        data = data.drop(0)
+    data.to_csv(output_name)
+    return output_name
 
 
 def readData(file, cols):
@@ -22,30 +47,53 @@ def mergeRecord(data, cols, lbCol_index, step_days=1, callback_days=1):
 
     x_train, y_train = [], []
     for x in range(callback_days - 1 + step_days, len(data)):
-        # last day of x_train item
         last_day = x - step_days
-
         x_train.append(scaled_data[last_day + 1 - callback_days : last_day + 1, :])
-        # x_train.append(data[last_day + 1 - callback_days : last_day + 1, :])
         y_train.append(scaled_data[x, lbCol_index])
-        # y_train.append(data[x, lbCol_index])
 
     x_train, y_train = np.array(x_train), np.array(y_train)
-
     return x_train, y_train.reshape(-1, 1)
 
 
-def loadData(trainFile, testFile, cols, label_col, step_days=1, callback_days=1):
+def loadData(
+    trainFile,
+    testFile,
+    cols,
+    label_col,
+    delta_cols=[],
+    step_days=1,
+    callback_days=1,
+    water_level=1,
+    is_smote=False,
+):
+    # start generate delta column
+    trainFile = configData(
+        file=trainFile,
+        output_name="result/train80.csv",
+        cols=cols,
+        delta_cols=delta_cols,
+    )
+    testFile = configData(
+        file=testFile, output_name="result/test20.csv", cols=cols, delta_cols=delta_cols
+    )
+    # end generate delta column
+
+    # start read data from file
     train = readData(file=trainFile, cols=cols)
     test = readData(file=testFile, cols=cols)
+    # end read data from file
+
+    # get index of label column name
     lbCol_index = train.columns.values.tolist().index(label_col)
 
+    # normalize data
     scaler.fit(train[cols].values)
     y_scaler.min_, y_scaler.scale_ = (
         scaler.min_[lbCol_index],
         scaler.scale_[lbCol_index],
     )
 
+    # merge callback_days before
     x_train, y_train = mergeRecord(
         data=train,
         cols=cols,
@@ -60,40 +108,59 @@ def loadData(trainFile, testFile, cols, label_col, step_days=1, callback_days=1)
         step_days=step_days,
         callback_days=callback_days,
     )
+
+    # over sampling
+    if is_smote:
+        x_train, y_train = smote(
+            x_train=x_train, y_train=y_train, water_level=water_level
+        )
+
+    # shuffle data
+    x_train, y_train, x_test, y_test = shuffleData(x_train, y_train, x_test, y_test)
+
     return x_train, y_train, x_test, y_test
 
 
-def __test():
-    trainFile = "dataset\dataset_rainseason_train_80.csv"
-    testFile = "dataset\dataset_rainseason_test_20.csv"
-    cols = [
-        "RF_KienGiang",
-        "RF_LeThuy",
-        "RF_DongHoi",
-        "WL_LeThuy",
-        "WL_KienGiang",
-        "WL_DongHoi",
-    ]
-    label_col = "WL_LeThuy"
-    step_days = 2
-    callback_days = 5
+def smote(x_train, y_train, water_level=0):
+    z = []
+    tr_shape = x_train.shape
+    c1, c2 = 0, 0
+    for i in range(x_train.shape[0]):
+        if y_scaler.inverse_transform(y_train[i][0].reshape(-1, 1)) > water_level:
+            z.append(1)
+            c1 += 1
+        else:
+            z.append(0)
+            c2 += 1
 
-    x_train, y_train, x_test, y_test = loadData(
-        trainFile=trainFile,
-        testFile=testFile,
-        cols=cols,
-        label_col=label_col,
-        step_days=step_days,
-        callback_days=callback_days,
+    x_train = x_train.reshape(x_train.shape[0], -1)
+    data_train = np.concatenate((x_train, y_train), axis=1)
+    z = np.array(z)
+    k_neighbors = math.ceil(sum(z) * 0.01)
+    x_t1, x_t2 = SMOTE(sampling_strategy=1, k_neighbors=k_neighbors).fit_resample(
+        data_train, z
+    )
+    return x_t1[:, :-1].reshape(-1, tr_shape[1], tr_shape[2]), x_t1[:, -1].reshape(
+        -1, 1
     )
 
-    # print(y_train.shape, y_test.shape)
-    # print("ytrain", y_train, "\nytest", y_test)
-    # print(x_train.shape, x_test.shape)
-    # print("ytrain", x_train, "\nytest", x_test)
-    # print("b", y_test)
-    # print("a", y_scaler.inverse_transform(y_test))
 
+def shuffleData(x_train, y_train, x_test, y_test):
+    trShape, teShape = x_train.shape, x_test.shape
 
-#
-# __test()
+    x_train = x_train.reshape(x_train.shape[0], -1)
+    data_train = np.concatenate((x_train, y_train), axis=1)
+
+    x_test = x_test.reshape(x_test.shape[0], -1)
+    data_test = np.concatenate((x_test, y_test), axis=1)
+
+    xTr, xTe = train_test_split(
+        np.concatenate((data_train, data_test), axis=0), shuffle=True, train_size=0.8
+    )
+
+    return (
+        xTr[:, :-1].reshape(-1, trShape[1], trShape[2]),
+        xTr[:, -1].reshape(-1, 1),
+        xTe[:, :-1].reshape(-1, teShape[1], teShape[2]),
+        xTe[:, -1].reshape(-1, 1),
+    )
