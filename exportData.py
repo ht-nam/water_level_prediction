@@ -52,7 +52,6 @@ def printResult(y_test, y_prd, delta_cols, stepDays):
             "nse score",
             "mae score",
             "rmse score",
-            "delta cols",
         ],
         [
             stepDays,
@@ -64,7 +63,6 @@ def printResult(y_test, y_prd, delta_cols, stepDays):
             NSE(y_test, y_prd),
             MAE(y_test, y_prd),
             RMSE(y_test, y_prd),
-            ", ".join(delta_cols),
         ],
     ]
 

@@ -15,24 +15,11 @@ def loadData(
     testFile,
     cols,
     label_col,
-    delta_cols=[],
     step_days=1,
     callback_days=1,
     water_level=1,
     is_smote=False,
 ):
-    # start generate delta column
-    trainFile = configData(
-        file=trainFile,
-        output_name="result/train80.csv",
-        cols=cols,
-        delta_cols=delta_cols,
-    )
-    testFile = configData(
-        file=testFile, output_name="result/test20.csv", cols=cols, delta_cols=delta_cols
-    )
-    # end generate delta column
-
     # start read data from file
     train = readData(file=trainFile, cols=cols)
     test = readData(file=testFile, cols=cols)
@@ -76,29 +63,6 @@ def loadData(
     return x_train, y_train, x_test, y_test
 
 
-def configData(file, output_name, cols=[], delta_cols=[]):
-    data = pd.read_csv(file)
-    data = data[cols]
-    data = data.fillna(data.bfill())
-    data.columns = cols
-    if delta_cols == []:
-        pass
-    else:
-        delta_indexes = []
-        for x, y in enumerate(delta_cols):
-            delta_indexes.append(cols.index(y))
-        for x, y in enumerate(delta_indexes):
-            delta_col = [
-                data.values[i, y] - data.values[i - 1, y]
-                for i in range(1, data.shape[0])
-            ]
-            delta_col.insert(0, 0)
-            data["d_" + delta_cols[x]] = delta_col
-        data = data.drop(0)
-    data.to_csv(output_name)
-    return output_name
-
-
 def readData(file, cols):
     data = pd.read_csv(file)
     data = data[cols]
@@ -126,7 +90,7 @@ def smote(x_train, y_train, water_level=0):
     tr_shape = x_train.shape
     c1, c2 = 0, 0
     for i in range(x_train.shape[0]):
-        if y_scaler.inverse_transform(y_train[i][0].reshape(-1, 1)) > water_level:
+        if y_scaler.inverse_transform(y_train[i][0].reshape(-1, 1)) >= water_level:
             z.append(1)
             c1 += 1
         else:
