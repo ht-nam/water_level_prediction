@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import openpyxl
 
 from Mesure_regression import NSE, R2, MAE, RMSE, MAX_ERROR
-from writeData import output_Excel
 
 
 def nse(predictions, targets):
@@ -128,3 +128,18 @@ def plotResult(y_test, y_prd):
     plt.plot(y_test)
     plt.plot(y_prd)
     plt.show()
+
+
+def output_Excel(input_detail, output_excel_path):
+    row = len(input_detail)
+    column = len(input_detail[0])
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    for i in range(0, row):
+        for j in range(0, column):
+            v = input_detail[i][j]
+            ws.cell(column=j + 1, row=i + 1, value=v)
+
+    wb.save(output_excel_path)
