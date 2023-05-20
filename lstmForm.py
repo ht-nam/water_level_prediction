@@ -1,26 +1,21 @@
 from tkinter import *
 import numpy as np
-
-# from linear_regression import LR_Model
 import pandas as pd
 from tkinter import messagebox
-
-# import lstmModel
-# import sys
-# sys.path.insert(1, '../lstmModel.py')
 from lstmModel import lstmModel
 import os
 import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 import threading
-import time
 
 
 def reset_form():
     for widget in form.winfo_children():
         if isinstance(widget, Entry):  # If this is an Entry widget class
             widget.delete(0, "end")
+    pb["value"] = 0
+    value_label["text"] = ""
 
 
 def split_string(s):
@@ -31,14 +26,12 @@ def split_string(s):
     return result
 
 
-def getform():
+def job():
     file_name = "./Kichban/" + textbox_file_name.get()
     file_name = file_name.strip()
 
     X = pd.read_excel(file_name)
     X = np.array(X.values)
-
-    threadList = []
 
     for i in range(X.shape[0]):
         print("Kich ban", i)
@@ -87,24 +80,8 @@ def getform():
         else:
             batch_size = X[i][12]
         print("number of batch size", batch_size)
-        progress(X.shape[0])
-        # update_progress_label()
 
-        # lstmModel(
-        #     file_train,
-        #     file_test,
-        #     know_attributes,
-        #     unknow_attributes[0],
-        #     foldername,
-        #     max_numdays,
-        #     max_afterdays,
-        #     epochs,
-        #     batch_size,
-        #     threshold,
-        #     smote,
-        # )
-
-        t1 = threading.Thread(
+        t1 = Thread(
             target=lstmModel,
             args=(
                 file_train,
@@ -120,20 +97,12 @@ def getform():
                 smote,
             ),
         )
-        # threadList.append(t1)
         t1.start()
         t1.join()
-        update_progress_label()
-
-    # for i in range(0, len(threadList)):
-    #     threadList[i].join()
+        progress(X.shape[0])
 
     # stop()
     messagebox.showinfo("Notification", "Finished testing")
-
-
-def update_progress_label():
-    return f"Current Progress: {pb['value']}%"
 
 
 def progress(length):
@@ -144,45 +113,67 @@ def progress(length):
     #     messagebox.showinfo(message='The progress completed!')
 
 
+def update_progress_label():
+    return f"Current Progress: {pb['value']}%"
+
+
 def stop():
     pb.stop()
     value_label["text"] = update_progress_label()
 
 
-# form instantiate
+def threading():
+    t1 = Thread(target=job)
+    t1.start()
+
+
+def formConfig():
+    form.title("Thực nghiệm mô hình Hồi quy tuyến tính:")
+    form.geometry("1000x500")
+    # outside form
+    folder = "./Kichban/"
+    files = [f for f in os.listdir(folder) if f.endswith(".xlsx") or f.endswith(".csv")]
+    #
+
+    # form content
+    lable_file_name = Label(form, text="Kịch bản thực nghiệm:")
+    lable_file_name.grid(row=8, column=1, padx=40, pady=10, sticky=W)
+    textbox_file_name = ttk.Combobox(form, width=50, values=files)
+    textbox_file_name.grid(row=8, column=2)
+
+    button_submit = Button(form, text="Submit", width=10, command=threading)
+    button_submit.grid(row=10, column=2, pady=20, sticky=W)
+
+    button_reset = Button(form, text="Reset", width=10, command=lambda: reset_form())
+    button_reset.grid(row=10, column=3, pady=20, sticky=W)
+
+    # place the progressbar
+    pb = ttk.Progressbar(
+        form, orient="horizontal", mode="determinate", length=280, maximum=100
+    )
+    pb.grid(column=2, row=12, columnspan=2, padx=10, pady=20)
+    # label
+    value_label = ttk.Label(form, text="")
+    value_label.grid(column=2, row=13, columnspan=2)
+
+    return (
+        lable_file_name,
+        textbox_file_name,
+        button_submit,
+        button_reset,
+        pb,
+        value_label,
+    )
+
+
 form = Tk()
-form.title("Thực nghiệm mô hình Hồi quy tuyến tính:")
-form.geometry("1000x500")
-# outside form
-folder = "./Kichban/"
-files = [f for f in os.listdir(folder) if f.endswith(".xlsx") or f.endswith(".csv")]
-#
-# form content
 
-
-lable_file_name = Label(form, text="Kịch bản thực nghiệm:")
-lable_file_name.grid(row=8, column=1, padx=40, pady=10, sticky=W)
-textbox_file_name = ttk.Combobox(form, width=50, values=files)
-textbox_file_name.grid(row=8, column=2)
-
-button_submit = Button(form, text="Submit", width=10, command=getform)
-button_submit.grid(row=10, column=2, pady=20, sticky=W)
-
-button_reset = Button(form, text="Reset", width=10, command=lambda: reset_form())
-button_reset.grid(row=10, column=3, pady=20, sticky=W)
-
-# value_label = ttk.Label(form, text=update_progress_label())
-# value_label.grid(column=1, row=12, columnspan=2)
-# progressbar
-pb = ttk.Progressbar(
-    form, orient="horizontal", mode="determinate", length=280, maximum=100
-)
-# place the progressbar
-pb.grid(column=2, row=12, columnspan=2, padx=10, pady=20)
-# label
-value_label = ttk.Label(form, text=update_progress_label())
-value_label.grid(column=2, row=13, columnspan=2)
-
-
-# form content
+(
+    lable_file_name,
+    textbox_file_name,
+    button_submit,
+    button_reset,
+    pb,
+    value_label,
+) = formConfig()
 form.mainloop()

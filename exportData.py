@@ -70,7 +70,7 @@ def printResult(y_test, y_prd, stepDays, folderName):
     output_excel_path = folderName + "/" + str(filename) + ".csv"
     output_Excel(input_detail, output_excel_path)
 
-    plotResult(y_test, y_prd, folderName + "/" + str(filename))
+    # plotResult(y_test, y_prd, folderName + "/" + str(filename))
 
 
 def plotResult(y_test, y_prd, imglnk):
