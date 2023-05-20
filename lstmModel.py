@@ -3,8 +3,6 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 import os
 from getData import loadData, y_scaler
 from exportData import printResult
-from openpyxl import Workbook
-import time
 
 
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
