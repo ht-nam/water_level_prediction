@@ -54,7 +54,9 @@ def loadData(
     # over sampling
     if is_smote:
         x_train, y_train = smote(
-            x_train=x_train, y_train=y_train, water_level=water_level
+            x_train=x_train,
+            y_train=y_train,
+            water_level=water_level,
         )
 
     # shuffle data
