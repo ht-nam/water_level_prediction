@@ -102,9 +102,9 @@ def update_progress_label():
     return f"Current Progress: {pb['value']}%"
 
 
-def progress():
-    if pb['value'] < 100:
-        pb['value'] += 20
+def progress(length):
+    if pb['value'] < length:
+        pb['value'] += 1
         value_label['text'] = update_progress_label()
     else:
         messagebox.showinfo(message='The progress completed!')
