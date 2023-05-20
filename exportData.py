@@ -11,7 +11,7 @@ def nse(predictions, targets):
     )
 
 
-def printResult(y_test, y_prd, delta_cols, stepDays):
+def printResult(y_test, y_prd, stepDays):
     print("In", y_test.shape[0], "days:")
     temp1, temp2 = 0, 0
     for i in range(len(y_test)):
