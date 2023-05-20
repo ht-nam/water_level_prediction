@@ -76,13 +76,17 @@ def printResult(y_test, y_prd, stepDays, folderName):
 
 
 def plotResult(y_test, y_prd, imglnk):
-    try:
-        plt.plot(y_test)
-        plt.plot(y_prd)
-        plt.savefig(imglnk)
-        # plt.show()
-    except:
-        pass
+    # try:
+    #     plt.plot(y_test)
+    #     plt.plot(y_prd)
+    #     plt.savefig(imglnk)
+    #     # plt.show()
+    # except:
+    #     pass
+
+    plt.plot(y_test)
+    plt.plot(y_prd)
+    plt.savefig(imglnk)
 
 
 def output_Excel(input_detail, output_excel_path):

@@ -81,24 +81,19 @@ def job():
             batch_size = X[i][12]
         print("number of batch size", batch_size)
 
-        t1 = Thread(
-            target=lstmModel,
-            args=(
-                file_train,
-                file_test,
-                know_attributes,
-                unknow_attributes[0],
-                foldername,
-                max_numdays,
-                max_afterdays,
-                epochs,
-                batch_size,
-                threshold,
-                smote,
-            ),
+        lstmModel(
+            file_train,
+            file_test,
+            know_attributes,
+            unknow_attributes[0],
+            foldername,
+            max_numdays,
+            max_afterdays,
+            epochs,
+            batch_size,
+            threshold,
+            smote,
         )
-        t1.start()
-        t1.join()
         progress(X.shape[0])
 
     # stop()
