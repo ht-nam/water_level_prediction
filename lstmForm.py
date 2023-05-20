@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 import threading
+from exportData import output_Excel
 
 
 def reset_form():
@@ -36,65 +37,82 @@ def job():
     for i in range(X.shape[0]):
         print("Kich ban", i)
         foldername = X[i][1]
-        print("foldername", foldername)
+        # print("foldername", foldername)
         file_train = X[i][2]
         file_test = X[i][3]
         max_numdays = X[i][4]
         max_afterdays = X[i][5]
-        if X[i][6] != X[i][6]:
+        if X[i][7] != X[i][7]:
             know_attributes = []
         else:
-            know_attributes = split_string(X[i][6])
-        print("know_attributes", know_attributes)
-
-        if X[i][7] != X[i][7]:
-            unknow_attributes = []
-        else:
-            unknow_attributes = split_string(X[i][7])
-        print("unknow_attributes", unknow_attributes)
+            know_attributes = split_string(X[i][7])
+        # print("know_attributes", know_attributes)
 
         if X[i][8] != X[i][8]:
+            unknow_attributes = []
+        else:
+            unknow_attributes = split_string(X[i][8])
+        # print("unknow_attributes", unknow_attributes)
+
+        if X[i][9] != X[i][9]:
             threshold = 999999.0
         else:
-            threshold = float(X[i][8])
-        print("threshold", threshold)
+            threshold = float(X[i][9])
+        # print("threshold", threshold)
 
-        if X[i][9] == 0:
+        if X[i][10] == 0:
             smote = False
         else:
             smote = True
-        print("smote", smote)
+        # print("smote", smote)
 
-        if X[i][10] != X[i][10]:
+        if X[i][11] != X[i][11]:
             smote_threshold = -999999.0
         else:
-            smote_threshold = float(X[i][12])
-        print("threshold_smote", smote_threshold)
-        if X[i][11] != X[i][11]:
+            smote_threshold = float(X[i][11])
+        # print("threshold_smote", smote_threshold)
+        if X[i][12] != X[i][12]:
             epochs = 999999.0
         else:
-            epochs = X[i][11]
-        print("number of epoch", epochs)
-        if X[i][12] != X[i][12]:
+            epochs = X[i][12]
+        # print("number of epoch", epochs)
+        if X[i][13] != X[i][13]:
             batch_size = 999999.0
         else:
-            batch_size = X[i][12]
-        print("number of batch size", batch_size)
+            batch_size = X[i][13]
+        # print("number of batch size", batch_size)
 
-        lstmModel(
-            file_train,
-            file_test,
-            know_attributes,
-            unknow_attributes[0],
-            foldername,
-            max_numdays,
-            max_afterdays,
-            epochs,
-            batch_size,
-            threshold,
-            smote,
-        )
-        progress(X.shape[0])
+        input_detail = [
+            [
+                "callback_days",
+                "total_days",
+                "over_days",
+                "OTR",
+                "max error",
+                "r2 score",
+                "nse score",
+                "mae score",
+                "rmse score",
+            ]
+        ]
+        for j in range(1, max_numdays + 1):
+            input_detail.append(
+                lstmModel(
+                    file_train,
+                    file_test,
+                    know_attributes,
+                    unknow_attributes[0],
+                    foldername,
+                    j,
+                    max_afterdays,
+                    epochs,
+                    batch_size,
+                    threshold,
+                    smote,
+                )
+            )
+            progress(X.shape[0] * max_numdays)
+        output_Excel(input_detail, foldername + "/summary.csv")
 
     # stop()
     messagebox.showinfo("Notification", "Finished testing")
@@ -109,7 +127,7 @@ def progress(length):
 
 
 def update_progress_label():
-    return f"Current Progress: {pb['value']}%"
+    return f"Current Progress: {round(pb['value'])}%"
 
 
 def stop():
@@ -171,4 +189,5 @@ form = Tk()
     pb,
     value_label,
 ) = formConfig()
+
 form.mainloop()

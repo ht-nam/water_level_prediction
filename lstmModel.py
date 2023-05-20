@@ -1,8 +1,8 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 import os
-from getData import loadData, y_scaler
-from exportData import printResult
+from getData import loadData, scaler, y_scaler
+from exportData import getResult
 
 
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
@@ -83,7 +83,23 @@ def lstmModel(
     y_prd = model.predict(x_test)
     y_test_inverse = y_scaler.inverse_transform(y_test)
     y_prd_inverse = y_scaler.inverse_transform(y_prd)
-    printResult(y_test_inverse, y_prd_inverse, callbackTime, folderName)
+    x_test_inverse = inverseXtest(x_test)
+    return getResult(
+        x_test_inverse,
+        y_test_inverse,
+        y_prd_inverse,
+        callbackTime,
+        waterLevel,
+        knowCols,
+        labelCol,
+        folderName,
+    )
+
+
+def inverseXtest(x_test):
+    for i in range(0, x_test.shape[0]):
+        x_test[i] = scaler.inverse_transform(x_test[i])
+    return x_test
 
 
 # lstmModel(

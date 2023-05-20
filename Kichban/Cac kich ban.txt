@@ -2,8 +2,5 @@
 ./Kichban/kichban_normal_after6.xlsx
 ./Kichban/kichban_normal_smote_after12.xlsx
 ./Kichban/kichban_normal_after12.xlsx
-./Kichban/kichban_normal_SVMsmote.xlsx
-./Kichban/kichban_Ridge_normal.xlsx
-./Kichban/kichban_normal_Ridge_normal_smote.xlsx
 ./Kichban/test.xlsx
 ./Kichban/test_smote.xlsx
