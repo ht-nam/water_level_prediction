@@ -87,16 +87,16 @@ def lstmModel(
     printResult(y_test_inverse, y_prd_inverse, callbackTime)
 
 
-lstmModel(
-    trainFile,
-    testFile,
-    knowCols,
-    labelCol,
-    folderName,
-    callbackTime,
-    stepTime,
-    epochs,
-    batchSize,
-    waterLevel,
-    isSmote,
-)
+# lstmModel(
+#     trainFile,
+#     testFile,
+#     knowCols,
+#     labelCol,
+#     folderName,
+#     callbackTime,
+#     stepTime,
+#     epochs,
+#     batchSize,
+#     waterLevel,
+#     isSmote,
+# )

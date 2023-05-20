@@ -38,7 +38,7 @@ def getform():
         print('foldername', foldername)
         file_train = X[i][2]
         file_test = X[i][3]
-        max_numdays = X[i][4] + 1
+        max_numdays = X[i][4]
         max_afterdays = X[i][5]
         if (X[i][6] != X[i][6]):
             know_attributes = []
@@ -109,7 +109,7 @@ form = Tk()
 form.title("Thực nghiệm mô hình Hồi quy tuyến tính:")
 form.geometry("1000x500")
 # outside form
-folder = r"C:\Users\tavan\OneDrive\Documents\Attendance\Python\water_level_prediction\Kichban"
+folder = "./Kichban/"
 files = [f for f in os.listdir(folder) if f.endswith(".xlsx") or f.endswith('.csv')]
 # 
 # form content
