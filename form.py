@@ -7,7 +7,9 @@ from tkinter import messagebox
 # import sys
 # sys.path.insert(1, '../lstmModel.py')
 from lstmModel import lstmModel
-
+import os
+import tkinter as tk
+from tkinter import ttk
 
 def reset_form():
     for widget in form.winfo_children():
@@ -23,7 +25,7 @@ def split_string(s):
     return result
 
 def getform():
-    file_name = textbox_file_name.get()
+    file_name = './Kichban/' + textbox_file_name.get()
     file_name = file_name.strip()
 
     X = pd.read_excel(file_name)
@@ -96,43 +98,77 @@ def getform():
     messagebox.showinfo("Notification", "Finished testing")
 
 
+def update_progress_label():
+    return f"Current Progress: {pb['value']}%"
 
-''''
-    file_test = textbox_file_test.get()
-    file_test = file_test.strip()
 
-    text_know_attributes = textbox_know_attributes.get()
-    know_attributes = split_string(text_know_attributes)
+def progress():
+    if pb['value'] < 100:
+        pb['value'] += 20
+        value_label['text'] = update_progress_label()
+    else:
+        messagebox.showinfo(message='The progress completed!')
 
-    text_unknow_attributes = textbox_unknow_attributes.get()
-    unknow_attributes = split_string(text_unknow_attributes)
 
-    pred_attribute = textbox_pred_attributes.get()
-    pred_attribute = split_string(pred_attribute)
+def stop():
+    pb.stop()
+    value_label['text'] = update_progress_label()
 
-    foldername = textbox_folder_name.get()
-    foldername = foldername.strip()
-
-    max_numdays = int(textbox_numdays.get())
-    max_afterdays = int(textbox_afterdays.get())
-
-    LR_Model(file_train, file_test, know_attributes, unknow_attributes, pred_attribute, foldername, max_numdays,
-             max_afterdays, nomalize=False)'''
+# form instantiate
 form = Tk()
 form.title("Thực nghiệm mô hình Hồi quy tuyến tính:")
 form.geometry("1000x500")
+# outside form
+folder = r"C:\Users\tavan\OneDrive\Documents\Attendance\Python\water_level_prediction\Kichban"
+files = [f for f in os.listdir(folder) if f.endswith(".xlsx") or f.endswith('.csv')]
+# 
+# form content
+
 
 lable_file_name = Label(form, text = "Kịch bản thực nghiệm:")
-lable_file_name.grid(row = 1, column = 1, padx = 40, pady = 10, sticky=W)
-textbox_file_name = Entry(form, width=50)
-textbox_file_name.grid(row = 1, column = 2)
+lable_file_name.grid(row = 8, column = 1, padx = 40, pady = 10, sticky=W)
+textbox_file_name = ttk.Combobox(form, width=50, values=files)
+textbox_file_name.grid(row = 8, column = 2)
 
 button_submit = Button(form, text = 'Submit', width=10, command = getform)
-button_submit.grid(row = 9, column = 2, pady = 20, sticky=W)
+button_submit.grid(row = 10, column = 2, pady = 20, sticky=W)
 
 button_reset = Button(form,text='Reset', width=10, command=lambda:reset_form())
-button_reset.grid(row=9, column=3, pady=20, sticky=W)
+button_reset.grid(row=10, column=3, pady=20, sticky=W)
 
+# value_label = ttk.Label(form, text=update_progress_label())
+# value_label.grid(column=1, row=12, columnspan=2)
+# progressbar
+pb = ttk.Progressbar(
+    form,
+    orient='horizontal',
+    mode='determinate',
+    length=280
+)
+# place the progressbar
+pb.grid(column=2, row=12, columnspan=2, padx=10, pady=20)
+
+# label
+value_label = ttk.Label(form, text=update_progress_label())
+value_label.grid(column=2, row=13, columnspan=2)
+
+# start button
+start_button = ttk.Button(
+    form,
+    text='Progress',
+    command=progress
+)
+start_button.grid(column=1, row=14, padx=10, pady=10, sticky=tk.E)
+
+stop_button = ttk.Button(
+    form,
+    text='Stop',
+    command=stop
+)
+stop_button.grid(column=2, row=14, padx=10, pady=10, sticky=tk.W)
+
+
+# form content
 form.mainloop()
 
 # # Create a tkinter window
