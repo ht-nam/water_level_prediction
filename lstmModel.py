@@ -41,6 +41,7 @@ def lstmModel(
     waterLevel=1,
     isSmote=False,
 ):
+    epochs = 10
     if not os.path.exists(folderName):
         os.makedirs(folderName)
 
@@ -84,7 +85,7 @@ def lstmModel(
     y_prd = model.predict(x_test)
     y_test_inverse = y_scaler.inverse_transform(y_test)
     y_prd_inverse = y_scaler.inverse_transform(y_prd)
-    printResult(y_test_inverse, y_prd_inverse, callbackTime)
+    printResult(y_test_inverse, y_prd_inverse, callbackTime, folderName)
 
 
 # lstmModel(
