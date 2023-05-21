@@ -2,5 +2,3 @@
 ./Kichban/kichban_normal_after6.xlsx
 ./Kichban/kichban_normal_smote_after12.xlsx
 ./Kichban/kichban_normal_after12.xlsx
-./Kichban/test.xlsx
-./Kichban/test_smote.xlsx

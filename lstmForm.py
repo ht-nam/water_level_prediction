@@ -31,7 +31,10 @@ def job():
     file_name = "./Kichban/" + textbox_file_name.get()
     file_name = file_name.strip()
 
-    X = pd.read_excel(file_name)
+    try:
+        X = pd.read_excel(file_name)
+    except:
+        X = pd.read_excel(textbox_file_name.get())
     X = np.array(X.values)
 
     for i in range(X.shape[0]):

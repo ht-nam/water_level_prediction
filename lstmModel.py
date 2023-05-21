@@ -39,7 +39,6 @@ def lstmModel(
     waterLevel=1,
     isSmote=False,
 ):
-    epochs = 10
     if not os.path.exists(folderName):
         os.makedirs(folderName)
 
