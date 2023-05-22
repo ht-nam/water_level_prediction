@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 plt.switch_backend("agg")
 import openpyxl
 
-from Mesure_regression import NSE, R2, MAE, RMSE, MAX_ERROR
+from measure import NSE, R2, MAE, RMSE, MAX_ERROR
 
 
 def nse(predictions, targets):
@@ -24,15 +24,31 @@ def getResult(
     x_test = x_test.reshape(x_test.shape[0], -1)
 
     # export excel result
-    input_detail = [cols * callbackDays + ["PRD_" + labelCol, "ABS"]]
+    data_cols = []
+    # data_cols = cols * callbackDays
+    for i in range(1, callbackDays + 1):
+        for j in cols:
+            data_cols.append(j + "_" + str(i))
+    input_detail = [data_cols + ["REAL_" + labelCol, "PRD_" + labelCol, "ABS"]]
     for i in range(0, x_test.shape[0]):
         input_detail.append(
-            x_test[i].tolist() + y_prd[i].tolist() + [abs(y_prd[i][0] - y_test[i][0])]
+            x_test[i].tolist()
+            + y_test[i].tolist()
+            + y_prd[i].tolist()
+            + [abs(y_prd[i][0] - y_test[i][0])]
         )
 
     filename = callbackDays
-    output_excel_path = folderName + "/callbackDay" + str(filename) + ".csv"
-    output_Excel(input_detail, output_excel_path)
+    output_excel_path = folderName + "/callbackDay" + str(filename) + ".xlsx"
+    measure = [
+        ["OTR", temp1 / y_test.shape[0]],
+        ["Max error", MAX_ERROR(y_test, y_prd)[0]],
+        ["R2 score", R2(y_test, y_prd)],
+        ["NSE score", NSE(y_test, y_prd)],
+        ["MAE score", MAE(y_test, y_prd)],
+        ["RMSE score", RMSE(y_test, y_prd)],
+    ]
+    output_Excel(input_detail, output_excel_path, measure)
 
     plotResult(y_test, y_prd, folderName + "/callbackDay" + str(filename))
     return [
@@ -55,7 +71,7 @@ def plotResult(y_test, y_prd, imglnk):
     plt.cla()
 
 
-def output_Excel(input_detail, output_excel_path):
+def output_Excel(input_detail, output_excel_path, measure=[]):
     row = len(input_detail)
     column = len(input_detail[0])
 
@@ -66,5 +82,11 @@ def output_Excel(input_detail, output_excel_path):
         for j in range(0, column):
             v = input_detail[i][j]
             ws.cell(column=j + 1, row=i + 1, value=v)
+
+    if len(measure) > 0:
+        for i in range(0, len(measure)):
+            for j in range(0, len(measure[0])):
+                v = measure[i][j]
+                ws.cell(column=j + 1, row=i + 1 + row + 1, value=v)
 
     wb.save(output_excel_path)

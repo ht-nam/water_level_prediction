@@ -115,7 +115,7 @@ def job():
                 )
             )
             progress(X.shape[0] * max_numdays)
-        output_Excel(input_detail, foldername + "/summary.csv")
+        output_Excel(input_detail, foldername + "/summary.xlsx")
 
     # stop()
     messagebox.showinfo("Notification", "Finished testing")
