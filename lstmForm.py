@@ -2,7 +2,7 @@ from tkinter import *
 import numpy as np
 import pandas as pd
 from tkinter import messagebox
-from lstmModel import myModel
+from myModel import myModel
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -11,12 +11,15 @@ import threading
 from exportData import output_Excel
 from PIL import ImageTk, Image
 
+
 def reset_form():
     for widget in form.winfo_children():
         if isinstance(widget, Entry):  # If this is an Entry widget class
             widget.delete(0, "end")
     pb["value"] = 0
     value_label["text"] = ""
+    modelRadio.set(1)
+    runTypeRadio.set(1)
 
 
 def split_string(s):
@@ -34,7 +37,10 @@ def job():
     try:
         X = pd.read_excel(file_name)
     except:
-        X = pd.read_excel(textbox_file_name.get())
+        try:
+            X = pd.read_excel(textbox_file_name.get())
+        except:
+            messagebox.showerror("ERROR", message="File not found error!")
     X = np.array(X.values)
 
     for i in range(X.shape[0]):
@@ -98,6 +104,7 @@ def job():
                 "rmse score",
             ]
         ]
+
         for j in range(1, max_numdays + 1):
             input_detail.append(
                 myModel(
@@ -112,6 +119,8 @@ def job():
                     batch_size,
                     threshold,
                     smote,
+                    modelRadio.get(),
+                    runTypeRadio.get(),
                 )
             )
             progress(X.shape[0] * max_numdays)
@@ -119,6 +128,8 @@ def job():
 
     # stop()
     messagebox.showinfo("Notification", "Finished testing")
+    button_submit["state"] = NORMAL
+    button_reset["state"] = NORMAL
 
 
 def progress(length):
@@ -139,8 +150,11 @@ def stop():
 
 
 def threading():
-    t1 = Thread(target=job)
-    t1.start()
+    button_submit["state"] = DISABLED
+    button_reset["state"] = DISABLED
+    trainThread = Thread(target=job)
+    trainThread.start()
+    trainThread.join()
 
 
 def formConfig():
@@ -149,14 +163,6 @@ def formConfig():
     # outside form
     folder = "./Kichban/"
     files = [f for f in os.listdir(folder) if f.endswith(".xlsx") or f.endswith(".csv")]
-    #
-
-    # form content
-    # img = ImageTk.PhotoImage(Image.open("./img/eater.gif"))
-
-    # # create a label with the image
-    # label = Label(form, image=img)
-    # label.grid(row=1, column=3)
 
     lable_file_name = Label(form, text="Kịch bản thực nghiệm:")
     lable_file_name.grid(row=8, column=1, padx=40, pady=10, sticky=W)
@@ -171,23 +177,23 @@ def formConfig():
 
     # radio button
     selected = tk.StringVar()
-    cpuRB = ttk.Radiobutton(form, text='CPU', value='Value 1', variable=selected)
+    cpuRB = ttk.Radiobutton(form, text="CPU", value=1, variable=selected)
     cpuRB.grid(row=9, column=2, sticky=W)
-    gpuRB = ttk.Radiobutton(form, text='GPU', value='Value 2', variable=selected)
+    gpuRB = ttk.Radiobutton(form, text="GPU", value=2, variable=selected)
     gpuRB.grid(row=9, column=3, sticky=W)
-
-
+    selected.set(1)
 
     radioSelected = tk.StringVar()
-    lstmRB = ttk.Radiobutton(form, text='LSTM', value='Value 1', variable=radioSelected)
-    lstmRB.grid(row=8, padx=10 ,column=3, sticky=W)
-    rnnRB = ttk.Radiobutton(form, text='RNN', value='Value 2', variable=radioSelected)
-    rnnRB.grid(row=8,  padx=10, column=4, sticky=W)    
-    gruRB = ttk.Radiobutton(form, text='GRU', value='Value 3', variable=radioSelected)
-    gruRB.grid(row=8,  padx=10, column=5, sticky=W)
-    biRB = ttk.Radiobutton(form, text='BiDirectional', value='Value 4', variable=radioSelected)
+    lstmRB = ttk.Radiobutton(form, text="LSTM", value=1, variable=radioSelected)
+    lstmRB.grid(row=8, padx=10, column=3, sticky=W)
+    rnnRB = ttk.Radiobutton(form, text="RNN", value=2, variable=radioSelected)
+    rnnRB.grid(row=8, padx=10, column=4, sticky=W)
+    gruRB = ttk.Radiobutton(form, text="GRU", value=3, variable=radioSelected)
+    gruRB.grid(row=8, padx=10, column=5, sticky=W)
+    biRB = ttk.Radiobutton(form, text="BiDirectional", value=4, variable=radioSelected)
     biRB.grid(row=8, padx=10, column=6, sticky=W)
-    #radio button
+    radioSelected.set(1)
+    # radio button
 
     # place the progressbar
     pb = ttk.Progressbar(
@@ -205,11 +211,13 @@ def formConfig():
         button_reset,
         pb,
         value_label,
+        radioSelected,
+        selected,
     )
 
 
 form = Tk()
-
+trainThread = Thread()
 (
     lable_file_name,
     textbox_file_name,
@@ -217,6 +225,8 @@ form = Tk()
     button_reset,
     pb,
     value_label,
+    modelRadio,
+    runTypeRadio,
 ) = formConfig()
 
 form.mainloop()

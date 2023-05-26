@@ -24,6 +24,8 @@ epochs = 10
 batchSize = 30
 waterLevel = 1.2
 isSmote = False
+modelRadio = "1"
+runTypeRadio = "1"
 
 
 def myModel(
@@ -38,6 +40,8 @@ def myModel(
     batchSize=30,
     waterLevel=1,
     isSmote=False,
+    modelRadio="1",
+    runTypeRadio="1",
 ):
     if not os.path.exists(folderName):
         os.makedirs(folderName)
@@ -56,41 +60,45 @@ def myModel(
 
     # train model
     model = Sequential()
-    # model.add(
-    #     LSTM(
-    #         128,
-    #         activation="tanh",
-    #         input_shape=(x_train.shape[1], x_train.shape[2]),
-    #         return_sequences=False,
-    #     )
-    # )
-    # model.add(
-    #     SimpleRNN(
-    #         128,
-    #         activation="tanh",
-    #         input_shape=(x_train.shape[1], x_train.shape[2]),
-    #         return_sequences=False,
-    #     )
-    # )
-    # model.add(
-    #     GRU(
-    #         128,
-    #         activation="tanh",
-    #         input_shape=(x_train.shape[1], x_train.shape[2]),
-    #         return_sequences=False,
-    #     )
-    # )
-    model.add(
-        Bidirectional(
+    if modelRadio == "1":
+        model.add(
             LSTM(
                 128,
-                # activation="tanh",
-                kernel_initializer="he_normal",
+                activation="tanh",
                 input_shape=(x_train.shape[1], x_train.shape[2]),
                 return_sequences=False,
             )
         )
-    )
+    elif modelRadio == "2":
+        model.add(
+            SimpleRNN(
+                128,
+                activation="tanh",
+                input_shape=(x_train.shape[1], x_train.shape[2]),
+                return_sequences=False,
+            )
+        )
+    elif modelRadio == "3":
+        model.add(
+            GRU(
+                128,
+                activation="tanh",
+                input_shape=(x_train.shape[1], x_train.shape[2]),
+                return_sequences=False,
+            )
+        )
+    elif modelRadio == "4":
+        model.add(
+            Bidirectional(
+                LSTM(
+                    128,
+                    # activation="tanh",
+                    kernel_initializer="he_normal",
+                    input_shape=(x_train.shape[1], x_train.shape[2]),
+                    return_sequences=False,
+                )
+            )
+        )
 
     model.add(Dense(y_train.shape[1], activation="tanh")),
 
@@ -127,18 +135,3 @@ def inverseXtest(x_test):
     for i in range(0, x_test.shape[0]):
         x_test[i] = scaler.inverse_transform(x_test[i])
     return x_test
-
-
-# lstmModel(
-#     trainFile,
-#     testFile,
-#     knowCols,
-#     labelCol,
-#     folderName,
-#     callbackTime,
-#     stepTime,
-#     epochs,
-#     batchSize,
-#     waterLevel,
-#     isSmote,
-# )
