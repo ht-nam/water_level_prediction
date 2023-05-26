@@ -26,7 +26,7 @@ waterLevel = 1.2
 isSmote = False
 
 
-def lstmModel(
+def myModel(
     trainFile,
     testFile,
     knowCols,

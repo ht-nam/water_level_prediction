@@ -2,7 +2,7 @@ from tkinter import *
 import numpy as np
 import pandas as pd
 from tkinter import messagebox
-from lstmModel import lstmModel
+from lstmModel import myModel
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -100,7 +100,7 @@ def job():
         ]
         for j in range(1, max_numdays + 1):
             input_detail.append(
-                lstmModel(
+                myModel(
                     file_train,
                     file_test,
                     know_attributes,
@@ -144,7 +144,7 @@ def threading():
 
 
 def formConfig():
-    form.title("Thực nghiệm mô hình Hồi quy tuyến tính:")
+    form.title("Thực nghiệm mô hình")
     form.geometry("1000x500")
     # outside form
     folder = "./Kichban/"
