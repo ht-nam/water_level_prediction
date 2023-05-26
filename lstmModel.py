@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM
+from tensorflow.keras.layers import Dense, Dropout, LSTM, SimpleRNN, GRU, Bidirectional
 import os
 from getData import loadData, scaler, y_scaler
 from exportData import getResult
@@ -56,18 +56,46 @@ def myModel(
 
     # train model
     model = Sequential()
+    # model.add(
+    #     LSTM(
+    #         128,
+    #         activation="tanh",
+    #         input_shape=(x_train.shape[1], x_train.shape[2]),
+    #         return_sequences=False,
+    #     )
+    # )
+    # model.add(
+    #     SimpleRNN(
+    #         128,
+    #         activation="tanh",
+    #         input_shape=(x_train.shape[1], x_train.shape[2]),
+    #         return_sequences=False,
+    #     )
+    # )
+    # model.add(
+    #     GRU(
+    #         128,
+    #         activation="tanh",
+    #         input_shape=(x_train.shape[1], x_train.shape[2]),
+    #         return_sequences=False,
+    #     )
+    # )
     model.add(
-        LSTM(
-            128,
-            activation="tanh",
-            input_shape=(x_train.shape[1], x_train.shape[2]),
-            return_sequences=False,
+        Bidirectional(
+            LSTM(
+                128,
+                # activation="tanh",
+                kernel_initializer="he_normal",
+                input_shape=(x_train.shape[1], x_train.shape[2]),
+                return_sequences=False,
+            )
         )
     )
+
     model.add(Dense(y_train.shape[1], activation="tanh")),
 
     model.compile(optimizer="adam", loss="mse")
-    model.summary()
+    # model.summary()
     model.fit(
         x_train,
         y_train,
