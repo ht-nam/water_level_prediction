@@ -9,7 +9,7 @@ from tkinter import ttk
 from threading import Thread
 import threading
 from exportData import output_Excel
-
+from PIL import ImageTk, Image
 
 def reset_form():
     for widget in form.winfo_children():
@@ -152,6 +152,12 @@ def formConfig():
     #
 
     # form content
+    # img = ImageTk.PhotoImage(Image.open("./img/eater.gif"))
+
+    # # create a label with the image
+    # label = Label(form, image=img)
+    # label.grid(row=1, column=3)
+
     lable_file_name = Label(form, text="Kịch bản thực nghiệm:")
     lable_file_name.grid(row=8, column=1, padx=40, pady=10, sticky=W)
     textbox_file_name = ttk.Combobox(form, width=50, values=files)
@@ -162,6 +168,26 @@ def formConfig():
 
     button_reset = Button(form, text="Reset", width=10, command=lambda: reset_form())
     button_reset.grid(row=10, column=3, pady=20, sticky=W)
+
+    # radio button
+    selected = tk.StringVar()
+    cpuRB = ttk.Radiobutton(form, text='CPU', value='Value 1', variable=selected)
+    cpuRB.grid(row=9, column=2, sticky=W)
+    gpuRB = ttk.Radiobutton(form, text='GPU', value='Value 2', variable=selected)
+    gpuRB.grid(row=9, column=3, sticky=W)
+
+
+
+    radioSelected = tk.StringVar()
+    lstmRB = ttk.Radiobutton(form, text='LSTM', value='Value 1', variable=radioSelected)
+    lstmRB.grid(row=8, padx=10 ,column=3, sticky=W)
+    rnnRB = ttk.Radiobutton(form, text='RNN', value='Value 2', variable=radioSelected)
+    rnnRB.grid(row=8,  padx=10, column=4, sticky=W)    
+    gruRB = ttk.Radiobutton(form, text='GRU', value='Value 3', variable=radioSelected)
+    gruRB.grid(row=8,  padx=10, column=5, sticky=W)
+    biRB = ttk.Radiobutton(form, text='BiDirectional', value='Value 4', variable=radioSelected)
+    biRB.grid(row=8, padx=10, column=6, sticky=W)
+    #radio button
 
     # place the progressbar
     pb = ttk.Progressbar(
