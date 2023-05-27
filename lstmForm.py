@@ -154,7 +154,7 @@ def threading():
     button_reset["state"] = DISABLED
     trainThread = Thread(target=job)
     trainThread.start()
-    trainThread.join()
+    # trainThread.join()
 
 
 def formConfig():
