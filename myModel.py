@@ -1,10 +1,11 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM, SimpleRNN, GRU, Bidirectional
 import os
+import tensorflow as tf
 from getData import loadData, scaler, y_scaler
 from exportData import getResult
 
-
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
 testFile = "dataset\Test_data_WL_RF_21_22.csv"
 knowCols = [
@@ -135,3 +136,5 @@ def inverseXtest(x_test):
     for i in range(0, x_test.shape[0]):
         x_test[i] = scaler.inverse_transform(x_test[i])
     return x_test
+
+myModel('./Data/Train_data_WL_RF_21_22.csv', './Data/Test_data_WL_RF_21_22.csv', knowCols, labelCol, folderName)
