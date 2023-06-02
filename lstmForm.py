@@ -128,8 +128,8 @@ def job():
 
     # stop()
     messagebox.showinfo("Notification", "Finished testing")
-    button_submit["state"] = NORMAL
-    button_reset["state"] = NORMAL
+    # button_submit["state"] = NORMAL
+    # button_reset["state"] = NORMAL
 
 
 def progress(length):
@@ -150,11 +150,11 @@ def stop():
 
 
 def threading():
-    button_submit["state"] = DISABLED
-    button_reset["state"] = DISABLED
+    # button_submit["state"] = DISABLED
+    # button_reset["state"] = DISABLED
     trainThread = Thread(target=job)
     trainThread.start()
-    trainThread.join()
+    # trainThread.join()
 
 
 def formConfig():

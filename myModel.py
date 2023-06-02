@@ -5,7 +5,6 @@ import tensorflow as tf
 from getData import loadData, scaler, y_scaler
 from exportData import getResult
 
-os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
 testFile = "dataset\Test_data_WL_RF_21_22.csv"
 knowCols = [
@@ -44,6 +43,9 @@ def myModel(
     modelRadio="1",
     runTypeRadio="1",
 ):
+    if runTypeRadio == "2":
+        os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
     if not os.path.exists(folderName):
         os.makedirs(folderName)
 
@@ -137,4 +139,5 @@ def inverseXtest(x_test):
         x_test[i] = scaler.inverse_transform(x_test[i])
     return x_test
 
-myModel('./Data/Train_data_WL_RF_21_22.csv', './Data/Test_data_WL_RF_21_22.csv', knowCols, labelCol, folderName)
+
+# myModel('./Data/Train_data_WL_RF_21_22.csv', './Data/Test_data_WL_RF_21_22.csv', knowCols, labelCol, folderName)
