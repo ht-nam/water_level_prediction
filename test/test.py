@@ -13,7 +13,7 @@ from tkinter import ttk
 from threading import Thread
 import threading
 from tkinter import messagebox as mb
-
+import re
 # # data = [
 # #     [573, 0, -7, 0, -22, 0],
 # #     [573, 0, -8, 0, -12, 0],
@@ -43,12 +43,21 @@ from tkinter import messagebox as mb
 
 
 window = tk.Tk()
-window.geometry("500x400")
+window.geometry("900x400")
 
 rows = 6 # number of rows
 cols = 6 # number of columns
 text_var = [] # list of StringVar for each Entry
 entries = [] # list of Entry widgets
+
+dtLabel = [
+    'WL_KienGiang',
+    'RF_KienGiang', 
+    'WL_LeThuy', 
+    'RF_LeThuy',
+    'WL_DongHoi', 
+    'RF_DongHoi'
+]
 
 def create_entries():
     global rows, cols, text_var, entries
@@ -61,8 +70,14 @@ def create_entries():
         for j in range(cols):
             # append your StringVar and Entry
             text_var[i].append(tk.StringVar())
-            entries[i].append(tk.Entry(window, textvariable=text_var[i][j],width=3))
-            entries[i][j].place(x=230 + j*30, y=20 + i*30)
+            entries[i].append(tk.Entry(window, textvariable=text_var[i][j],width=5))
+            entries[i][j].place(x=250 + j*90, y=30 + i*30)
+
+for i in range(len(dtLabel)):
+    tk.Label(window,
+                  text = dtLabel[i]).place(x = 230 + i * 90,
+                                           y = 10) 
+    print(dtLabel[i])
 
 def prd(data, callbackDays):
     if callbackDays == 6:
@@ -87,6 +102,9 @@ def get_mat():
             if(text_var[i][j].get() == ''):
                 mb.showerror("Thông báo", "Trường dữ liệu không được bỏ trống")
                 return
+            if(not re.match("^[+-]?(\d+|\d+\.\d+)$", text_var[i][j].get())):
+                mb.showerror("Thông báo", "Sai trường dữ liệu")
+                return
             matrix[i].append(float(text_var[i][j].get()))
     print(matrix)
     print(prd(matrix, float(size_var.get())))
@@ -107,7 +125,6 @@ def change_size():
     global rows, cols
     # get the value of the radiobutton variable
     value = int(size_var.get())
-    print(type(value))
     # delete the existing entries
     delete_entries()
     # update the number of columns based on the value
