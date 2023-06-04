@@ -12,6 +12,57 @@ import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 import threading
+from tkinter import messagebox as mb
+
+# # data = [
+# #     [573, 0, -7, 0, -22, 0],
+# #     [573, 0, -8, 0, -12, 0],
+# #     [572, 0.2, -8, 0.2, -1, 0.2],
+# #     [572, 0.2, -9, 0.2, 9, 0.2],
+# #     [572, 5.8, -10, 5.8, 11, 5.8],
+# #     [573, 0.8, -10, 0.8, 14, 0.8],
+# # ]
+
+# # data = [
+# #     [688, 0, 142, 0, 14, 0],
+# #     [687, 0, 141, 0, 22, 0],
+# #     [686, 0, 140, 0, 42, 0],
+# #     [685, 0, 139, 0, 61, 0],
+# #     [684, 0, 138, 0, 81, 0],
+# #     [684, 0, 137, 0, 82, 0],
+# #     [683, 0, 137, 0, 84, 0],
+# #     [683, 3.4, 136, 3.4, 85, 0],
+# #     [687, 18.8, 136, 18.8, 69, 0.4],
+# #     [690, 0.4, 136, 0.4, 52, 1],
+# #     [694, 0, 136, 0, 36, 0],
+# #     [697, 0, 136, 0, 37, 2.2],
+# # ]
+
+# # print(prd(data, 6))
+# # print(prd(dat, 12))
+
+
+window = tk.Tk()
+window.geometry("500x400")
+
+rows = 6 # number of rows
+cols = 6 # number of columns
+text_var = [] # list of StringVar for each Entry
+entries = [] # list of Entry widgets
+
+def create_entries():
+    global rows, cols, text_var, entries
+    # loop through the rows and columns
+    for i in range(rows):
+        # append an empty list to your two arrays
+        # so you can append to those later
+        text_var.append([])
+        entries.append([])
+        for j in range(cols):
+            # append your StringVar and Entry
+            text_var[i].append(tk.StringVar())
+            entries[i].append(tk.Entry(window, textvariable=text_var[i][j],width=3))
+            entries[i][j].place(x=230 + j*30, y=20 + i*30)
 
 def prd(data, callbackDays):
     if callbackDays == 6:
@@ -27,90 +78,64 @@ def prd(data, callbackDays):
     a = np.reshape(scaler.transform(a), (1, a.shape[0], a.shape[1]))
     return y_scaler.inverse_transform(model.predict(a))
 
-# callback function to get your StringVars
-def get_mat():    
+def get_mat():
+    global rows, cols, text_var
     matrix = []
     for i in range(rows):
         matrix.append([])
         for j in range(cols):
-            matrix[i].append(int(text_var[i][j].get()))
+            if(text_var[i][j].get() == ''):
+                mb.showerror("Thông báo", "Trường dữ liệu không được bỏ trống")
+                return
+            matrix[i].append(float(text_var[i][j].get()))
     print(matrix)
-    print(prd(matrix, int(selected_value.get())))
+    print(prd(matrix, float(size_var.get())))
 
+def delete_entries():
+    global rows, cols, text_var, entries
+    # loop through the rows and columns
+    for i in range(rows):
+        for j in range(cols):
+            # delete your StringVar and Entry
+            text_var[i][j].set("")
+            entries[i][j].destroy()
+    # clear your two arrays
+    text_var.clear()
+    entries.clear()
 
-window = Tk()
-window.title("Matrix")
-window.geometry("650x500+120+120")
-window.configure(bg='bisque2')
-window.resizable(False, False)
+def change_size():
+    global rows, cols
+    # get the value of the radiobutton variable
+    value = int(size_var.get())
+    print(type(value))
+    # delete the existing entries
+    delete_entries()
+    # update the number of columns based on the value
+    if value == 6:
+        cols = 6
+        rows = 6
+    elif value == 12:
+        cols = 6
+        rows = 12
+    # create new entries with the updated number of columns
+    create_entries()
 
+# create a variable for the radiobuttons
+size_var = tk.StringVar()
+size_var.set(6) # set the default value
 
+# create two radiobuttons to change the size of the matrix
+rb1 = tk.Radiobutton(window, text="6x6", variable=size_var, value=6, command=change_size)
+rb2 = tk.Radiobutton(window, text="12x6", variable=size_var, value=12, command=change_size)
 
-def update_label():
-    print(selected_value.get())
-    if(selected_value.get() == 6):
-        rows, cols = (6,6)
-    else:
-        rows,cols = (12, 6)
-    return rows,cols
-# empty arrays for your Entrys and StringVars
-text_var = []
-entries = []
-selected_value = StringVar(None, "12x6")
+# place the radiobuttons on the window
+rb1.place(x=100, y=100)
+rb2.place(x=100, y=150)
 
-
-label = Label(window, text="Choose matrix size:", font=('arial', 10, 'bold'), bg="bisque2").place(x=250, y=5)
-r1 = Radiobutton(window, text="6x6", value=6, variable=selected_value, command=update_label).place(x=50, y=20)
-r2 = Radiobutton(window, text="12x6", value=12, variable=selected_value, command=update_label).place(x=500, y=20)
-
-Label(window, text="Enter matrix :", font=('arial', 10, 'bold'), bg="bisque2").place(x=50, y=50)
-
-x2 = 0
-y2 = 0
-
-rows, cols = update_label()
-
-for i in range(rows):
-    # append an empty list to your two arrays
-    # so you can append to those later
-    text_var.append([])
-    entries.append([])
-    for j in range(cols):
-        # append your StringVar and Entry
-        text_var[i].append(StringVar())
-        entries[i].append(Entry(window, textvariable=text_var[i][j],width=3))
-        entries[i][j].place(x=200 + x2, y=80 + y2)
-        x2 += 30
-    y2 += 30
-    x2 = 0
+# create the initial entries with 6x6 size
+create_entries()
 
 button= Button(window,text="Submit", bg='bisque3', width=15, command=get_mat)
-button.place(x=160,y=300)
+button.place(x=100,y=300)
 
-# window.mainloop()
-data = [
-    [573, 0, -7, 0, -22, 0],
-    [573, 0, -8, 0, -12, 0],
-    [572, 0.2, -8, 0.2, -1, 0.2],
-    [572, 0.2, -9, 0.2, 9, 0.2],
-    [572, 5.8, -10, 5.8, 11, 5.8],
-    [573, 0.8, -10, 0.8, 14, 0.8],
-]
-
-# data = [
-#     [688, 0, 142, 0, 14, 0],
-#     [687, 0, 141, 0, 22, 0],
-#     [686, 0, 140, 0, 42, 0],
-#     [685, 0, 139, 0, 61, 0],
-#     [684, 0, 138, 0, 81, 0],
-#     [684, 0, 137, 0, 82, 0],
-#     [683, 0, 137, 0, 84, 0],
-#     [683, 3.4, 136, 3.4, 85, 0],
-#     [687, 18.8, 136, 18.8, 69, 0.4],
-#     [690, 0.4, 136, 0.4, 52, 1],
-#     [694, 0, 136, 0, 36, 0],
-#     [697, 0, 136, 0, 37, 2.2],
-# ]
-
-print(prd(data, 6))
-# print(prd(dat, 12))
+window.mainloop()

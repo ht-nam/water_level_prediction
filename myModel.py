@@ -18,7 +18,7 @@ knowCols = [
 ]
 labelCol = "WL_LeThuy"
 folderName = "MyResult"
-callbackTime = 6
+callbackTime = 12
 stepTime = 6
 epochs = 10
 batchSize = 30
