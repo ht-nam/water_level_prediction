@@ -1,9 +1,7 @@
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM, SimpleRNN, GRU, Bidirectional
 import os
-import tensorflow as tf
-from getData import loadData, scaler, y_scaler
+from getData import loadData, readReferenceValue, scaler, y_scaler
 from exportData import getResult
+from model.allModel import getLSTM, getRNN, getGRU, getBidirectional
 
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
 testFile = "dataset\Test_data_WL_RF_21_22.csv"
@@ -40,6 +38,7 @@ def myModel(
     batchSize=30,
     waterLevel=1,
     isSmote=False,
+    reference_col="",
     modelRadio="1",
     runTypeRadio="1",
 ):
@@ -61,50 +60,24 @@ def myModel(
         is_smote=isSmote,
     )
 
+    print(x_test.shape, y_test.shape)
+    refValue = (
+        readReferenceValue(testFile, reference_col, callbackTime, stepTime)
+        if reference_col != ""
+        else ""
+    )
+    print(refValue.shape)
+
     # train model
-    model = Sequential()
-    if modelRadio == "1":
-        model.add(
-            LSTM(
-                128,
-                activation="tanh",
-                input_shape=(x_train.shape[1], x_train.shape[2]),
-                return_sequences=False,
-            )
-        )
-    elif modelRadio == "2":
-        model.add(
-            SimpleRNN(
-                128,
-                activation="tanh",
-                input_shape=(x_train.shape[1], x_train.shape[2]),
-                return_sequences=False,
-            )
-        )
-    elif modelRadio == "3":
-        model.add(
-            GRU(
-                128,
-                activation="tanh",
-                input_shape=(x_train.shape[1], x_train.shape[2]),
-                return_sequences=False,
-            )
-        )
-    elif modelRadio == "4":
-        model.add(
-            Bidirectional(
-                LSTM(
-                    128,
-                    # activation="tanh",
-                    kernel_initializer="he_normal",
-                    input_shape=(x_train.shape[1], x_train.shape[2]),
-                    return_sequences=False,
-                )
-            )
-        )
-
-    model.add(Dense(y_train.shape[1], activation="tanh")),
-
+    model = (
+        getLSTM(x_train, y_train)
+        if modelRadio == "1"
+        else getRNN(x_train, y_train)
+        if modelRadio == "2"
+        else getGRU(x_train, y_train)
+        if modelRadio == "3"
+        else getBidirectional(x_train, y_train)
+    )
     model.compile(optimizer="adam", loss="mse")
     # model.summary()
     model.fit(
@@ -131,6 +104,8 @@ def myModel(
         knowCols,
         labelCol,
         folderName,
+        refValue,
+        reference_col,
     )
 
 
@@ -138,6 +113,3 @@ def inverseXtest(x_test):
     for i in range(0, x_test.shape[0]):
         x_test[i] = scaler.inverse_transform(x_test[i])
     return x_test
-
-
-# myModel('./Data/Train_data_WL_RF_21_22.csv', './Data/Test_data_WL_RF_21_22.csv', knowCols, labelCol, folderName)

@@ -2,14 +2,13 @@ from tkinter import *
 import numpy as np
 import pandas as pd
 from tkinter import messagebox
-from myModel import myModel
+from model.myModel import myModel
 import os
 import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 import threading
 from exportData import output_Excel
-from PIL import ImageTk, Image
 
 
 def reset_form():
@@ -90,6 +89,11 @@ def job():
         else:
             batch_size = X[i][13]
         # print("number of batch size", batch_size)
+        if X[i][14] != X[i][14]:
+            reference_col = ""
+        else:
+            reference_col = X[i][14]
+        # print(reference_col)
 
         input_detail = [
             [
@@ -119,6 +123,7 @@ def job():
                     batch_size,
                     threshold,
                     smote,
+                    reference_col,
                     modelRadio.get(),
                     runTypeRadio.get(),
                 )

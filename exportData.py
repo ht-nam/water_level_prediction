@@ -14,7 +14,16 @@ def nse(predictions, targets):
 
 
 def getResult(
-    x_test, y_test, y_prd, callbackDays, threshold, cols, labelCol, folderName
+    x_test,
+    y_test,
+    y_prd,
+    callbackDays,
+    threshold,
+    cols,
+    labelCol,
+    folderName,
+    refValue,
+    reference_col,
 ):
     temp1 = 0
     for i in range(len(y_test)):
@@ -29,15 +38,27 @@ def getResult(
     for i in range(1, callbackDays + 1):
         for j in cols:
             data_cols.append(j + "_" + str(i))
-    input_detail = [data_cols + ["REAL_" + labelCol, "PRD_" + labelCol, "ABS"]]
-    for i in range(0, x_test.shape[0]):
-        input_detail.append(
-            x_test[i].tolist()
-            + y_test[i].tolist()
-            + y_prd[i].tolist()
-            + [abs(y_prd[i][0] - y_test[i][0])]
-        )
-
+    if reference_col == "":
+        input_detail = [data_cols + ["REAL_" + labelCol, "PRD_" + labelCol, "ABS"]]
+        for i in range(0, x_test.shape[0]):
+            input_detail.append(
+                x_test[i].tolist()
+                + y_test[i].tolist()
+                + y_prd[i].tolist()
+                + [abs(y_prd[i][0] - y_test[i][0])]
+            )
+    else:
+        input_detail = [
+            data_cols + ["REAL_" + labelCol, "PRD_" + labelCol, "ABS", reference_col]
+        ]
+        for i in range(0, x_test.shape[0]):
+            input_detail.append(
+                x_test[i].tolist()
+                + y_test[i].tolist()
+                + y_prd[i].tolist()
+                + [abs(y_prd[i][0] - y_test[i][0])]
+                + [refValue[i]]
+            )
     filename = callbackDays
     output_excel_path = folderName + "/callbackDay" + str(filename) + ".xlsx"
     measure = [

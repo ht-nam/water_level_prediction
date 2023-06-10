@@ -60,7 +60,7 @@ def loadData(
         )
 
     # shuffle data
-    x_train, y_train, x_test, y_test = shuffleData(x_train, y_train, x_test, y_test)
+    # x_train, y_train, x_test, y_test = shuffleData(x_train, y_train, x_test, y_test)
 
     return x_train, y_train, x_test, y_test
 
@@ -71,6 +71,15 @@ def readData(file, cols):
     data = data.fillna(data.bfill())
     data.columns = cols
     return data
+
+
+def readReferenceValue(file_test, reference_col, numdays, afterdays):
+    data = pd.read_csv(file_test)
+    data = data[reference_col]
+    data = data.fillna(data.bfill())
+    data.columns = reference_col
+    data = data.iloc[numdays + afterdays - 1 : data.shape[0]]
+    return np.array(data)
 
 
 def mergeRecord(data, cols, lbCol_index, step_days=1, callback_days=1):
