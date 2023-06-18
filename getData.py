@@ -19,6 +19,7 @@ def loadData(
     callback_days=1,
     water_level=1,
     is_smote=False,
+    modelRadio=0,
 ):
     # start read data from file
     train = readData(file=trainFile, cols=cols)
@@ -35,34 +36,33 @@ def loadData(
         scaler.scale_[lbCol_index],
     )
 
-    # merge callback_days before
-    x_train, y_train = mergeRecord(
-        data=train,
-        cols=cols,
-        lbCol_index=lbCol_index,
-        step_days=step_days,
-        callback_days=callback_days,
-    )
-    x_test, y_test = mergeRecord(
-        data=test,
-        cols=cols,
-        lbCol_index=lbCol_index,
-        step_days=step_days,
-        callback_days=callback_days,
-    )
-
-    # over sampling
-    if is_smote:
-        x_train, y_train = smote(
-            x_train=x_train,
-            y_train=y_train,
-            water_level=water_level,
+    if modelRadio != "5":
+        # merge callback_days before
+        x_train, y_train = mergeRecord(
+            data=train,
+            cols=cols,
+            lbCol_index=lbCol_index,
+            step_days=step_days,
+            callback_days=callback_days,
+        )
+        x_test, y_test = mergeRecord(
+            data=test,
+            cols=cols,
+            lbCol_index=lbCol_index,
+            step_days=step_days,
+            callback_days=callback_days,
         )
 
-    # shuffle data
-    # x_train, y_train, x_test, y_test = shuffleData(x_train, y_train, x_test, y_test)
-
-    return x_train, y_train, x_test, y_test
+        # over sampling
+        if is_smote:
+            x_train, y_train = smote(
+                x_train=x_train,
+                y_train=y_train,
+                water_level=water_level,
+            )
+        return x_train, y_train, x_test, y_test
+    else:
+        return train, None, test, None
 
 
 def readData(file, cols):

@@ -109,7 +109,8 @@ def job():
             ]
         ]
 
-        for j in range(1, max_numdays + 1):
+        # for j in range(1, max_numdays + 1):
+        for j in range(max_numdays, max_numdays + 1):
             input_detail.append(
                 myModel(
                     file_train,
@@ -197,6 +198,8 @@ def formConfig():
     gruRB.grid(row=8, padx=10, column=5, sticky=W)
     biRB = ttk.Radiobutton(form, text="BiDirectional", value=4, variable=radioSelected)
     biRB.grid(row=8, padx=10, column=6, sticky=W)
+    arRB = ttk.Radiobutton(form, text="Arima", value=5, variable=radioSelected)
+    arRB.grid(row=8, padx=10, column=7, sticky=W)
     radioSelected.set(1)
     # radio button
 

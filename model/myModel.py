@@ -1,7 +1,8 @@
 import os
 from getData import loadData, readReferenceValue, scaler, y_scaler
 from exportData import getResult
-from model.allModel import getLSTM, getRNN, getGRU, getBidirectional
+from model.allModel import getLSTM, getRNN, getGRU, getBidirectional, getAutoArima
+import numpy as np
 
 trainFile = "dataset\Train_data_WL_RF_21_22.csv"
 testFile = "dataset\Test_data_WL_RF_21_22.csv"
@@ -42,6 +43,7 @@ def myModel(
     modelRadio="1",
     runTypeRadio="1",
 ):
+    # epochs = 350
     if runTypeRadio == "2":
         os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
@@ -58,15 +60,16 @@ def myModel(
         callback_days=callbackTime,
         water_level=waterLevel,
         is_smote=isSmote,
+        modelRadio=modelRadio,
     )
 
-    print(x_test.shape, y_test.shape)
+    # print(x_test.shape, y_test.shape)
     refValue = (
         readReferenceValue(testFile, reference_col, callbackTime, stepTime)
         if reference_col != ""
         else ""
     )
-    print(refValue.shape)
+    # print(refValue.shape)
 
     # train model
     model = (
@@ -77,24 +80,39 @@ def myModel(
         else getGRU(x_train, y_train)
         if modelRadio == "3"
         else getBidirectional(x_train, y_train)
+        if modelRadio == "4"
+        else getAutoArima(x_train, y_train)
     )
-    model.compile(optimizer="adam", loss="mse")
-    # model.summary()
-    model.fit(
-        x_train,
-        y_train,
-        epochs=epochs,
-        batch_size=batchSize,
-        validation_split=0.3,
-        verbose=1,
-    )
-    # end train model
 
-    # predict
-    y_prd = model.predict(x_test)
-    y_test_inverse = y_scaler.inverse_transform(y_test)
-    y_prd_inverse = y_scaler.inverse_transform(y_prd)
-    x_test_inverse = inverseXtest(x_test)
+    if modelRadio != "5":
+        model.compile(optimizer="adam", loss="mse")
+        # model.summary()
+        model.fit(
+            x_train,
+            y_train,
+            epochs=epochs,
+            batch_size=batchSize,
+            validation_split=0.3,
+            verbose=1,
+        )
+        y_prd = model.predict(x_test)
+        y_test_inverse = y_scaler.inverse_transform(y_test)
+        y_prd_inverse = y_scaler.inverse_transform(y_prd)
+        x_test_inverse = inverseXtest(x_test)
+    else:
+        prediction, _ = model.predict(
+            n_periods=x_test.shape[0] - callbackTime - stepTime, return_conf_int=True
+        )
+        x_test_inverse = np.array(
+            x_test.iloc[callbackTime + stepTime :, 2].values
+        ).reshape(x_test.shape[0] - callbackTime - stepTime, 1, 1)
+        y_prd_inverse = np.array(prediction).reshape(
+            x_test.shape[0] - callbackTime - stepTime, 1
+        )
+        y_test_inverse = np.array(
+            x_test.iloc[callbackTime + stepTime :, 2].values
+        ).reshape(x_test.shape[0] - callbackTime - stepTime, 1)
+
     return getResult(
         x_test_inverse,
         y_test_inverse,
@@ -106,6 +124,7 @@ def myModel(
         folderName,
         refValue,
         reference_col,
+        modelRadio,
     )
 
 

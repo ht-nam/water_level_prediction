@@ -24,6 +24,7 @@ def getResult(
     folderName,
     refValue,
     reference_col,
+    modelRadio=0,
 ):
     temp1 = 0
     for i in range(len(y_test)):
@@ -69,7 +70,7 @@ def getResult(
         ["MAE score", MAE(y_test, y_prd)],
         ["RMSE score", RMSE(y_test, y_prd)],
     ]
-    output_Excel(input_detail, output_excel_path, measure)
+    output_Excel(input_detail, output_excel_path, measure, modelRadio)
 
     plotResult(y_test, y_prd, folderName + "/callbackDay" + str(filename))
     return [
@@ -92,7 +93,10 @@ def plotResult(y_test, y_prd, imglnk):
     plt.cla()
 
 
-def output_Excel(input_detail, output_excel_path, measure=[]):
+def output_Excel(input_detail, output_excel_path, measure=[], modelRadio=0):
+    if modelRadio == "5":
+        input_detail[0] = ["X", "TEST", "PRD", "ABS", "TIME"]
+
     row = len(input_detail)
     column = len(input_detail[0])
 
