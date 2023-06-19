@@ -22,7 +22,7 @@ def getRNN(x_train, y_train):
     model = Sequential()
     model.add(
         SimpleRNN(
-            128,
+            300,
             activation="tanh",
             input_shape=(x_train.shape[1], x_train.shape[2]),
             return_sequences=False,
@@ -37,7 +37,7 @@ def getGRU(x_train, y_train):
     model = Sequential()
     model.add(
         GRU(
-            128,
+            300,
             activation="tanh",
             input_shape=(x_train.shape[1], x_train.shape[2]),
             return_sequences=False,

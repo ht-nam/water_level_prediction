@@ -109,8 +109,8 @@ def job():
             ]
         ]
 
-        # for j in range(1, max_numdays + 1):
-        for j in range(max_numdays, max_numdays + 1):
+        for j in range(1, max_numdays + 1):
+            # for j in range(max_numdays, max_numdays + 1):
             input_detail.append(
                 myModel(
                     file_train,

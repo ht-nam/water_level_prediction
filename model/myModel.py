@@ -43,7 +43,6 @@ def myModel(
     modelRadio="1",
     runTypeRadio="1",
 ):
-    # epochs = 350
     if runTypeRadio == "2":
         os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
